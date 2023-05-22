@@ -138,19 +138,33 @@ describe("MerkleBatchTransfers", () => {
         });
       });
 
-      context("but an amount is zero", () => {
+      context("but owner has insufficient balance", () => {
         it("reverts", async () => {
-          const recipients = recipientsList[3];
-          const amounts = amountsList[3];
+          const recipients = recipientsList[0]; // [owner, recipient1, recipient2]
+          const amounts = amountsList[0]; // [100, 200, 300]
+
+          await token.connect(owner).approve(contract.address, 900);
+          await token.connect(owner).transfer(await recipient1.getAddress(), 9999999999999999999n);
+          
+          const proof = merkleTree.getHexProof(leaves[0]);
+          
+          await expect(contract.batchTransfer(proof, recipients, amounts)).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+        });
+      });
+
+      context("but an address is the zero address", () => {
+        it("reverts", async () => {
+          const recipients = recipientsList[3]; // [ownerAddr, ZERO_ADDR]
+          const amounts = amountsList[3]; // [500, 600]
   
           const proof = merkleTree.getHexProof(leaves[3]);
-          await token.connect(owner).approve(contract.address, 600);
+          await token.connect(owner).approve(contract.address, 2000);
   
-          await expect(contract.batchTransfer(proof, recipients, amounts)).to.be.revertedWith("MerkleBatchTransfers: address is zero");
+          await expect(contract.batchTransfer(proof, recipients, amounts)).to.be.revertedWith("ERC20: transfer to the zero address");
         });
       });
   
-      context("but an address is the zero address", () => {
+      context("but an amount is zero", () => {
         it("reverts", async () => {
           const recipients = recipientsList[4]; // [owner]
           const amounts = amountsList[4]; // [0]

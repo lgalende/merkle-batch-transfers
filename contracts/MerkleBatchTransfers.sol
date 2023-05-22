@@ -24,7 +24,7 @@ import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
  * @dev A contract that allows batch transfers of ERC20 tokens based on a Merkle proof.
  */
 contract MerkleBatchTransfers is Ownable {
-    address public token;
+    IERC20 public token;
     bytes32 public merkleRoot;
 
     mapping(bytes32 => bool) public wasTransfered;
@@ -34,7 +34,7 @@ contract MerkleBatchTransfers is Ownable {
      * @param _token Address of the ERC20 token associated with the contract.
      */
     constructor(address _token) {
-        token = _token;
+        token = IERC20(_token);
     }
 
     /**
@@ -63,15 +63,12 @@ contract MerkleBatchTransfers is Ownable {
 
         wasTransfered[leaf] = true;
 
-        address to;
         uint256 amount;
         uint256 length = recipients.length;
         for (uint256 i = 0; i < length; i++) {
-            to = recipients[i];
             amount = amounts[i];
-            require(to != address(0), "MerkleBatchTransfers: address is zero");
             require(amount > 0, "MerkleBatchTransfers: amount is zero");
-            SafeERC20.safeTransferFrom(IERC20(token), owner(), to, amount);
+            SafeERC20.safeTransferFrom(token, owner(), recipients[i], amount);
         }
     } 
 }
