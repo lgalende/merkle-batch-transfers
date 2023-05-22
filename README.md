@@ -24,7 +24,7 @@ To get started with the project, follow these steps:
 
 1. Clone the repository:
 ```shell
-git clone <repository-url>
+git clone https://github.com/lgalende/merkle-batch-transfers.git
 ```
 
 2. Install the dependencies:
