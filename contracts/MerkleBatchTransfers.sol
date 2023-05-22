@@ -71,7 +71,7 @@ contract MerkleBatchTransfers is Ownable {
             amount = amounts[i];
             require(to != address(0), "MerkleBatchTransfers: address is zero");
             require(amount > 0, "MerkleBatchTransfers: amount is zero");
-            require(IERC20(token).transferFrom(owner(), to, amount), "MerkleBatchTransfers: transfer failed");
+            SafeERC20.safeTransferFrom(IERC20(token), owner(), to, amount);
         }
     } 
 }
